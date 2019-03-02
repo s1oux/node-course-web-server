@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>{{title}}</title>
+    <link rel="stylesheet" href="/css/bootstrap.min.css">
+    {{#each css}}
+        <link rel="stylesheet" href="/css/{{this}}" />
+    {{/each}}
+  </head>
+  <body>
+
+
+    {{#if isLogin}}
+
+    {{else}}
+      {{> header}}
+    {{/if}}
+
+    {{{body}}}
+
+
+    {{#if isLogin}}
+
+    {{else}}
+      {{>footer}}
+    {{/if}}
+
+    <script src="/js/jquery.min.js"></script>
+    <script src="/js/bootstrap.min.js"></script>
+    <script src="/js/layout.js"></script>
+  </body>
+</html>

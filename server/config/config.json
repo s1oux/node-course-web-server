@@ -1,0 +1,12 @@
+{
+  "test": {
+    "PORT": 3000,
+    "MONGODB_URI": "mongodb://localhost:27017/BookAppTest",
+    "JWT_SECRET" : "afds45fsad5f4sdfasv654"
+  },
+  "development": {
+    "PORT": 3000,
+    "MONGODB_URI": "mongodb://localhost:27017/BookApp",
+    "JWT_SECRET" : "tghjkdsaf465dfcxvb45sdfa"
+  }
+}

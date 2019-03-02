@@ -1,13 +1,11 @@
-<!DOCTYPE html>
-<html>
-  <head>
-    <meta charset="utf-8">
-    <title>about page</title>
-  </head>
-  <body>
-    {{> header}}
-    <p>some text</p>
+<main role="main" class="flex-shrink-0">
+  <div class="container">
+    <h1 class="mt-5">{{welcomeMessage}}</h1>
+    <form action="/" method="post">
+      <label>message</label>
+      <input type="text" name="message" />
+      <button type="submit">send</button>
+    </form>
+    {{respondedMessage}}
 
-    {{> footer}}
-  </body>
-</html>
+</main>

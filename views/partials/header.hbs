@@ -1,6 +1,47 @@
 <header>
-  <h1>{{pageTitle}}</h1>
-  <p><a href="/">home</a></p>
-  <p><a href="/about">about</a></p>
-  <p><a href="/projects">projects</a></p>
+  <nav class="navbar navbar-expand-md navbar-dark fixed-top bg-dark">
+
+    <div class="container">
+      <div class="dropdown mr-auto">
+        <!-- <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+          <span class="navbar-toggler-icon"></span>
+        </button> -->
+        <button class="btn btn-secondary" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+          <a class="dropdown-item" href="/">Home</a>
+          <a class="dropdown-item" href="/about">About</a>
+          <a class="dropdown-item" href="/projects">Projects</a>
+        </div>
+      </div>
+      <!-- <div class="mr-auto">
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="navbarCollapse">
+          <ul class="navbar-nav mr-auto">
+            <li class="nav-item active">
+              <a class="nav-link" href="/">home <span class="sr-only">(current)</span></a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="/about">about</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="/projects">projects</a>
+            </li>
+          </ul>
+        </div>
+      </div> -->
+
+      <div class="ml-auto">
+        <a class="btn btn-secondary" href="/signIn">SignIn</a>
+        <a class="btn btn-secondary" href="/signUp">SignUp</a>
+      </div>
+
+    </div>
+
+  </nav>
+
 </header>
