@@ -103,10 +103,16 @@ UserSchema.statics.findByToken = function (token) {
   var decoded;
 
   try {
+    console.log('token in findbytoken', token);
+    console.log('secret in findbysecret', process.env.JWT_SECRET);
+    
     decoded = jwt.verify(token, process.env.JWT_SECRET);
   } catch (e) {
+    console.log('got into rejection on jwtverify');
     return Promise.reject();
   }
+
+  console.log('successfully decoded');
 
   return User.findOne({
     '_id': decoded._id,

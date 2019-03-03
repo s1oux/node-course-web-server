@@ -2,6 +2,7 @@ require('./config/config.js');
 
 const _ = require('lodash');
 const express = require('express');
+var session = require('express-session');
 const bodyParser = require('body-parser');
 const hbs = require('hbs');
 const expressHbs = require('express-handlebars');
@@ -16,6 +17,12 @@ const port = process.env.PORT;
 const urlencodedParser = bodyParser.urlencoded({extended: false});
 
 app.use(bodyParser.json());
+app.use(session({
+  secret: 'dont know',
+  cookie: {
+    maxAge: 60000
+  }
+}));
 
 app.engine("hbs", expressHbs(
     {
@@ -35,8 +42,9 @@ app.use('/css', express.static(__dirname + '/../node_modules/bootstrap/dist/css'
 // main page
 app.get('/', (request, response) => {
   response.render('home.hbs', {
-    title: 'welcome to main page',
-    welcomeMessage: 'Nu darova stalker'
+    title: 'Home',
+    welcomeMessage: 'Nu darova stalker',
+    isAuthorized: request.session.isAuthorized || false
   });
 });
 
@@ -46,9 +54,10 @@ app.post('/', urlencodedParser, (request, response) => {
   }
 
   response.render('home.hbs', {
-    title: 'welcome to main page',
+    title: 'Home',
     welcomeMessage: 'Nu darova stalker',
-    respondedMessage: request.body.message
+    respondedMessage: request.body.message,
+    isAuthorized: request.session.isAuthorized || false
   });
 });
 
@@ -69,7 +78,13 @@ app.post('/signIn',urlencodedParser, async (req, res) => {
     const user = await User.findByCredentials(body.email, body.password);
     const token = await user.generateAuthToken();
 
-    res.header('x-auth', token).send(user);
+    var redirectTo = req.session.returnTo || '/';
+    delete req.session.returnTo;
+    console.log('redirection route: ', redirectTo);
+    req.session.secureToken = token;
+    req.session.isAuthorized = true;
+    res.header('x-auth', token).redirect(redirectTo);
+    // res.header('x-auth', token).send(user);
   } catch (e) {
     res.status(400).send(e);
   }
@@ -93,12 +108,19 @@ app.post('/signUp', urlencodedParser, async (req, res) => {
   try {
     const body = _.pick(req.body, ['email', 'password', 'username', 'phonenumber', 'city', 'department']);
     body.role = 'customer';
-
+    var redirectTo = req.session.returnTo || '/';
     const user = new User(body);
 
     await user.save();
-    const token = user.generateAuthToken();
-    res.header('x-auth', token).send(user);
+    const token = user.generateAuthToken().then((result) => {
+      // console.log('result in then sign up', result);
+      req.session.secureToken = result;
+      req.session.isAuthorized = true;
+      res.header('x-auth', result).redirect(redirectTo);
+    });
+    // console.log('token in req',req.session.secureToken);
+    // console.log('token in token', token);
+    // res.header('x-auth', token).send(user);
   } catch(e) {
     res.status(400).send(e);
   }
@@ -106,18 +128,61 @@ app.post('/signUp', urlencodedParser, async (req, res) => {
 
 // end of register page region
 
-app.get('/about', (request, response) => {
+// region of protected page
+app.get('/about', authenticate, (request, response) => {
 
   response.render('about.hbs', {
-    title: 'about page'
+    title: 'about page',
+    welcomeMessage: 'you are authorized',
+    isAuthorized: request.session.isAuthorized || false
   });
 });
 
 app.get('/projects', (request, response) => {
   response.render('projects.hbs', {
-    title: 'projects page'
+    title: 'projects page',
+    isAuthorized: req.session.isAuthorized || false
   });
 });
+// end of protected page region
+
+// logout route region
+app.get('/logout', authenticate, async (req, res) => {
+  try {
+    await req.user.removeToken(req.token);
+    delete req.session.isAuthorized;
+    delete req.session.secureToken;
+
+    res.status(200).redirect('/');
+    // res.status(200).send();
+  } catch(e) {
+    res.status(400).send();
+  }
+});
+// end of region
+
+// profile route region
+app.get('/profile', authenticate, async (req, res) => {
+  const token = req.session.secureToken;
+
+  console.log('TOKEN IN PROFILE', token);
+  try {
+    const user = await User.findByToken(token);
+    console.log(user);
+
+    res.render('profile.hbs', {
+      title: 'Profile',
+      user: user,
+      css: ['profile.css'],
+      isAuthorized: req.session.isAuthorized || false
+    });
+  } catch (e) {
+    req.session.returnTo = req.originalUrl;
+    res.redirect('/signIn');
+    // res.status(401).send(e);
+  }
+});
+// end of profile route region
 
 app.get('/bad', (request, response) => {
   response.send({
