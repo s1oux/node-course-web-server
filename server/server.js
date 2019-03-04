@@ -165,7 +165,7 @@ app.get('/logout', authenticate, async (req, res) => {
 app.get('/profile', authenticate, async (req, res) => {
   const token = req.session.secureToken;
 
-  console.log('TOKEN IN PROFILE', token);
+  // console.log('TOKEN IN PROFILE', token);
   try {
     const user = await User.findByToken(token);
     console.log(user);
@@ -176,6 +176,59 @@ app.get('/profile', authenticate, async (req, res) => {
       css: ['profile.css'],
       isAuthorized: req.session.isAuthorized || false
     });
+  } catch (e) {
+    req.session.returnTo = req.originalUrl;
+    res.redirect('/signIn');
+    // res.status(401).send(e);
+  }
+});
+
+app.get('/profile/edit', authenticate, async (req, res) => {
+  const token = req.session.secureToken;
+
+  // console.log('TOKEN IN PROFILE', token);
+  try {
+    const user = await User.findByToken(token);
+    console.log(user);
+
+    res.render('profile-edit.hbs', {
+      title: 'Edit Profile',
+      user: user,
+      css: ['profile-edit.css'],
+      isAuthorized: req.session.isAuthorized || false
+    });
+  } catch (e) {
+    req.session.returnTo = req.originalUrl;
+    res.redirect('/signIn');
+    // res.status(401).send(e);
+  }
+});
+
+app.post('/profile/edit', urlencodedParser, authenticate, async (req, res) => {
+  const token = req.session.secureToken;
+  const body = _.pick(req.body, ['username', 'phonenumber', 'city', 'department']);
+  console.log('body in /profile/edit:: ', body);
+  // console.log('TOKEN IN PROFILE', token);
+  try {
+    const user = await User.findByToken(token);
+    console.log(user);
+    // user.username = body.username;
+    // user.phonenumber = body.phonenumber;
+    // user.city = body.city;
+    // user.department = body.department;
+
+    const result = await User.updateOne(
+      { "email" : user.email },
+      { $set : {
+        "username" : body.username,
+        "phonenumber" : body.phonenumber,
+        "city" : body.city,
+        "department" : body.department } }
+    );
+
+    console.log(result);
+
+    res.redirect('/profile');
   } catch (e) {
     req.session.returnTo = req.originalUrl;
     res.redirect('/signIn');

@@ -4,7 +4,7 @@ var authenticate = async (req, res, next) => {
   // const token = req.header('x-auth');
   const token = req.session.secureToken;
   // delete req.session.secureToken;
-  console.log('token from x-auth', token);
+  // console.log('token from x-auth', token);
   try {
     const user = await User.findByToken(token);
     // console.log('responsed user: ', user);

@@ -1,0 +1,17 @@
+<div class="text-center">
+  <form class="form-signup" action="/profile/edit" method="post">
+    <h1 class="h3 mb-3 font-weight-normal">Edit necessary fields</h1>
+
+    <label for="inputUsername" class="sr-only">Username</label>
+    <input name="username" id="inputUsername" class="form-control optional-first" value="{{user.username}}" required="" autofocus="">
+    <label for="inputPhonenumber" class="sr-only">Phonenumber</label>
+    <input name="phonenumber" id="inputPhonenumber" class="form-control optional" value="{{user.phonenumber}}" required="">
+    <label for="inputCity" class="sr-only">City</label>
+    <input name="city" id="inputCity" class="form-control optional" value="{{user.city}}" required="" autofocus="">
+    <label for="inputDepartment" class="sr-only">Department</label>
+    <input name="department" id="inputDepartment" value="{{user.department}}" class="form-control optional-last" required="">
+
+    <button class="btn btn-lg btn-primary btn-block" type="submit">Edit</button>
+
+  </form>
+</div>
