@@ -2,19 +2,26 @@
 
   <nav class="navbar navbar-expand-md navbar-dark fixed-bottom bg-dark">
 
-    <div class="container">
-      <div class="mr-auto">
-        <form action="/projects" method="get">
-          <button class="btn btn-secondary" type="submit">Projects</button>
-        </form>
+    {{#if isAdmin}}
+      <div class="container text-center">
+        <p class="text-center">Administration page</p>
       </div>
+    {{else}}
+      <div class="container">
+        <div class="mr-auto">
+          <form action="/projects" method="get">
+            <button class="btn btn-secondary" type="submit">Projects</button>
+          </form>
+        </div>
 
-      <div class="ml-auto">
-        <form action="/about" method="get">
-          <button class="btn btn-secondary" type="submit">About</button>
-        </form>
+        <div class="ml-auto">
+          <form action="/about" method="get">
+            <button class="btn btn-secondary" type="submit">About</button>
+          </form>
+        </div>
       </div>
-    </div>
+    {{/if}}
+
 
   </nav>
 </footer>

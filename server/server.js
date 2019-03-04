@@ -20,7 +20,7 @@ app.use(bodyParser.json());
 app.use(session({
   secret: 'dont know',
   cookie: {
-    maxAge: 60000
+    maxAge: 360000
   }
 }));
 
@@ -78,12 +78,27 @@ app.post('/signIn',urlencodedParser, async (req, res) => {
     const user = await User.findByCredentials(body.email, body.password);
     const token = await user.generateAuthToken();
 
-    var redirectTo = req.session.returnTo || '/';
-    delete req.session.returnTo;
-    console.log('redirection route: ', redirectTo);
-    req.session.secureToken = token;
-    req.session.isAuthorized = true;
-    res.header('x-auth', token).redirect(redirectTo);
+    if(user.role === 'customer') {
+      var redirectTo = req.session.returnTo || '/';
+      delete req.session.returnTo;
+      console.log('redirection route: ', redirectTo);
+      req.session.secureToken = token;
+      req.session.isAuthorized = true;
+      res.header('x-auth', token).redirect(redirectTo);
+    } else if(user.role === 'admin') {
+      delete req.session.returnTo;
+      req.session.secureToken = token;
+      req.session.isAuthorized = true;
+      req.session.isAdmin = true;
+      res.header('x-auth', token).redirect('/admin');
+    } else if(user.role === 'manager') {
+      delete req.session.returnTo;
+      req.session.secureToken = token;
+      req.session.isAuthorized = true;
+      req.session.isAdmin = true;
+      res.header('x-auth', token).redirect('/manager');
+    }
+
     // res.header('x-auth', token).send(user);
   } catch (e) {
     res.status(400).send(e);
@@ -128,6 +143,86 @@ app.post('/signUp', urlencodedParser, async (req, res) => {
 
 // end of register page region
 
+// admin page region
+// display admin main page
+app.get('/admin', authenticate, async (req, res) => {
+  const managers = await User.find({ role: 'manager' });
+
+  res.render('admin.hbs', {
+    title: 'Admin',
+    isAuthorized: req.session.isAuthorized,
+    isAdmin: req.session.isAdmin,
+    css: ['admin.css'],
+    js: ['admin.js'],
+    managers
+  });
+
+});
+
+// display manager addition admin page
+app.get('/admin/add', authenticate, (req, res) => {
+
+  res.render('admin-add.hbs', {
+    title: 'Adding manager',
+    isAuthorized: req.session.isAuthorized,
+    isAdmin: req.session.isAdmin,
+    css: ['admin-form.css']
+  });
+
+});
+
+// handling manager addition admin page
+app.post('/admin/add', urlencodedParser, authenticate, async (req, res) => {
+  try {
+    const body = _.pick(req.body, ['email', 'password', 'username', 'phonenumber']);
+    body.city = 'default';
+    body.department = '00000';
+    body.role = 'manager';
+    const user = new User(body);
+
+    await user.save();
+
+    res.status(200).redirect('/admin');
+  } catch(e) {
+    res.status(400).send(e);
+  }
+});
+
+// display manager edition admin page --transfer data to form
+app.get('/admin/edit/:email', authenticate, async (req, res) => {
+  const email = req.params.email;
+  console.log(email);
+  const manager = await User.findOne({ email, role: 'manager' });
+  console.log(manager);
+
+  res.render('admin-edit.hbs', {
+    title: 'Editing manager',
+    isAuthorized: req.session.isAuthorized,
+    isAdmin: req.session.isAdmin,
+    css: ['admin-form.css']
+  });
+
+});
+
+// handling manager deletion --- add deletion !!!!
+app.get('/admin/remove/:email', authenticate, async (req, res) => {
+  const email = req.params.email;
+  // console.log(email);
+  const manager = await User.findOne({ email, role: 'manager' });
+  // console.log(manager);
+
+  const managers = await User.find({role: 'manager'});
+  res.render('admin.hbs', {
+    title: 'Admin',
+    isAuthorized: req.session.isAuthorized,
+    isAdmin: req.session.isAdmin,
+    css: ['admin.css'],
+    managers
+  });
+
+});
+// end of admin page region
+
 // region of protected page
 app.get('/about', authenticate, (request, response) => {
 
@@ -141,7 +236,7 @@ app.get('/about', authenticate, (request, response) => {
 app.get('/projects', (request, response) => {
   response.render('projects.hbs', {
     title: 'projects page',
-    isAuthorized: req.session.isAuthorized || false
+    isAuthorized: request.session.isAuthorized || false
   });
 });
 // end of protected page region
@@ -151,6 +246,7 @@ app.get('/logout', authenticate, async (req, res) => {
   try {
     await req.user.removeToken(req.token);
     delete req.session.isAuthorized;
+    delete req.session.isAdmin;
     delete req.session.secureToken;
 
     res.status(200).redirect('/');
@@ -207,15 +303,10 @@ app.get('/profile/edit', authenticate, async (req, res) => {
 app.post('/profile/edit', urlencodedParser, authenticate, async (req, res) => {
   const token = req.session.secureToken;
   const body = _.pick(req.body, ['username', 'phonenumber', 'city', 'department']);
-  console.log('body in /profile/edit:: ', body);
-  // console.log('TOKEN IN PROFILE', token);
+  // console.log('body in /profile/edit:: ', body);
   try {
     const user = await User.findByToken(token);
     console.log(user);
-    // user.username = body.username;
-    // user.phonenumber = body.phonenumber;
-    // user.city = body.city;
-    // user.department = body.department;
 
     const result = await User.updateOne(
       { "email" : user.email },

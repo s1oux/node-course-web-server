@@ -2,19 +2,32 @@
   <nav class="navbar navbar-expand-md navbar-dark fixed-top bg-dark">
 
     <div class="container">
-      <div class="dropdown mr-auto">
-        <!-- <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-          <span class="navbar-toggler-icon"></span>
-        </button> -->
-        <button class="btn btn-secondary" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-          <span class="navbar-toggler-icon"></span>
-        </button>
-        <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-          <a class="dropdown-item" href="/">Home</a>
-          <a class="dropdown-item" href="/about">About</a>
-          <a class="dropdown-item" href="/projects">Projects</a>
+      {{#if isAdmin}}
+
+      {{else}}
+        <div class="dropdown mr-auto">
+          <!-- <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+            <span class="navbar-toggler-icon"></span>
+          </button> -->
+          <button class="btn btn-secondary" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+            <span class="navbar-toggler-icon"></span>
+          </button>
+          <div class="dropdown-menu dropdown-menu-left" aria-labelledby="dropdownMenuButton">
+            <form action="/" method="get">
+              <button class="dropdown-item" type="submit" name="button">Home</button>
+            </form>
+            <form action="/about" method="get">
+              <button class="dropdown-item" type="submit" name="button">About</button>
+            </form>
+            <form action="/projects" method="get">
+              <button class="dropdown-item" type="submit" name="button">Projects</button>
+            </form>
+            <!-- <a class="dropdown-item" href="/">Home</a>
+            <a class="dropdown-item" href="/about">About</a>
+            <a class="dropdown-item" href="/projects">Projects</a> -->
+          </div>
         </div>
-      </div>
+      {{/if}}
       <!-- <div class="mr-auto">
         <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation">
           <span class="navbar-toggler-icon"></span>
@@ -37,19 +50,37 @@
 
       <div class="ml-auto">
         {{#if isAuthorized}}
-        <div class="dropdown">
-          <button class="btn btn-secondary" type="button" id="dropdownProfile" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-            <span class="navbar-toggler-icon"></span>
-          </button>
-          <div class="dropdown-menu" aria-labelledby="dropdownProfile">
-            <a class="dropdown-item" href="/profile">Profile</a>
-            <div class="dropdown-divider"></div>
-            <a class="dropdown-item" href="/logout">Logout</a>
-          </div>
-        </div>
+          {{#if isAdmin}}
+            <form action="/logout" method="get">
+              <button class="btn btn-secondary" type="submit" name="button">Logout</button>
+            </form>
+          {{else}}
+            <div class="dropdown">
+              <button class="btn btn-secondary" type="button" id="dropdownProfile" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                <span class="navbar-toggler-icon"></span>
+              </button>
+              <div class="dropdown-menu dropdown-menu-right" aria-labelledby="dropdownProfile">
+                <form action="/profile" method="get">
+                  <button class="dropdown-item" type="submit" name="button">Profile</button>
+                </form>
+                <div class="dropdown-divider"></div>
+                <form action="/logout" method="get">
+                  <button class="dropdown-item" type="submit" name="button">Logout</button>
+                </form>
+              </div>
+            </div>
+          {{/if}}
+
         {{else}}
-          <a class="btn btn-secondary" href="/signIn">SignIn</a>
-          <a class="btn btn-secondary" href="/signUp">SignUp</a>
+          <div class="row">
+            <form action="/signIn" method="get">
+              <button class="btn btn-secondary" type="submit" name="button">Sign In</button>
+            </form>
+            <span style="padding-right:5px"></span>
+            <form action="/signUp" method="get">
+              <button class="btn btn-secondary" type="submit" name="button">Sign Up</button>
+            </form>
+          </div>
         {{/if}}
       </div>
 
