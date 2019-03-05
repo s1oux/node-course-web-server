@@ -251,9 +251,11 @@ app.get('/about', authenticate, (request, response) => {
 });
 
 app.get('/projects', (request, response) => {
+
   response.render('projects.hbs', {
     title: 'projects page',
-    bookUrl: 'http://www.axmag.com/download/pdfurl-guide.pdf',
+    bookUrl: __dirname + '/../public/MeinKampf.html',
+    // bookUrl: 'https://docdro.id/QxOjFQ2',
     isAuthorized: request.session.isAuthorized || false,
     css: ['profile.css']
   });
