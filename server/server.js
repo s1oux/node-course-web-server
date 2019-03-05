@@ -191,35 +191,52 @@ app.post('/admin/add', urlencodedParser, authenticate, async (req, res) => {
 // display manager edition admin page --transfer data to form
 app.get('/admin/edit/:email', authenticate, async (req, res) => {
   const email = req.params.email;
-  console.log(email);
   const manager = await User.findOne({ email, role: 'manager' });
-  console.log(manager);
+  
+  req.session.managerToUpdate = email;
 
   res.render('admin-edit.hbs', {
     title: 'Editing manager',
     isAuthorized: req.session.isAuthorized,
     isAdmin: req.session.isAdmin,
+    manager: manager,
     css: ['admin-form.css']
   });
 
 });
 
+app.post('/admin/edit', urlencodedParser, authenticate, async (req, res) => {
+  const email = req.session.managerToUpdate;
+  delete req.session.managerToUpdate;
+  const body = _.pick(req.body, ['username', 'phonenumber']);
+
+  try {
+
+    const result = await User.updateOne(
+      { "email" : email },
+      { $set : {
+        "username" : body.username,
+        "phonenumber" : body.phonenumber } }
+    );
+
+    console.log(result);
+
+    res.redirect('/admin');
+  } catch (e) {
+    req.session.returnTo = req.originalUrl;
+    res.redirect('/signIn');
+  }
+});
+
+
 // handling manager deletion --- add deletion !!!!
 app.get('/admin/remove/:email', authenticate, async (req, res) => {
   const email = req.params.email;
-  // console.log(email);
-  const manager = await User.findOne({ email, role: 'manager' });
-  // console.log(manager);
 
-  const managers = await User.find({role: 'manager'});
-  res.render('admin.hbs', {
-    title: 'Admin',
-    isAuthorized: req.session.isAuthorized,
-    isAdmin: req.session.isAdmin,
-    css: ['admin.css'],
-    managers
-  });
+  const manager = await User.remove({ email });
+  console.log(manager);
 
+  res.redirect('/admin');
 });
 // end of admin page region
 
