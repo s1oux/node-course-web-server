@@ -192,7 +192,7 @@ app.post('/admin/add', urlencodedParser, authenticate, async (req, res) => {
 app.get('/admin/edit/:email', authenticate, async (req, res) => {
   const email = req.params.email;
   const manager = await User.findOne({ email, role: 'manager' });
-  
+
   req.session.managerToUpdate = email;
 
   res.render('admin-edit.hbs', {
@@ -253,7 +253,9 @@ app.get('/about', authenticate, (request, response) => {
 app.get('/projects', (request, response) => {
   response.render('projects.hbs', {
     title: 'projects page',
-    isAuthorized: request.session.isAuthorized || false
+    bookUrl: 'http://www.axmag.com/download/pdfurl-guide.pdf',
+    isAuthorized: request.session.isAuthorized || false,
+    css: ['profile.css']
   });
 });
 // end of protected page region
