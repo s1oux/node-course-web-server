@@ -7,9 +7,11 @@ const bodyParser = require('body-parser');
 const hbs = require('hbs');
 const expressHbs = require('express-handlebars');
 const {ObjectID} = require('mongodb');
+const axios = require('axios');
 
 var {mongoose} = require('./db/mongoose');
 var {User} = require('./models/user');
+var {Book} = require('./models/book');
 var {authenticate} = require('./middleware/authenticate');
 
 var app = express();
@@ -249,7 +251,9 @@ app.get('/about', authenticate, (request, response) => {
     isAuthorized: request.session.isAuthorized || false
   });
 });
+// end of protected page region
 
+// test route for displaying book by url
 app.get('/projects', (request, response) => {
 
   response.render('projects.hbs', {
@@ -260,7 +264,80 @@ app.get('/projects', (request, response) => {
     css: ['profile.css']
   });
 });
-// end of protected page region
+
+// end of test route for displaying books
+
+// test route for book response
+
+app.get('/books', async (request, response) => {
+  // right method for displaying books
+  //
+  // const books = await Book.find();
+  //
+  // response.render('books.hbs', {
+  //   title: 'books page',
+  //   isAuthorized: request.session.isAuthorized || false,
+  //   books: books,
+  //   css: ['profile.css']
+  // });
+
+  initial method view for initializing books database
+  var query = '*';
+  var bookapiUrl = `https://www.googleapis.com/books/v1/volumes?q=${query}&format=json`;
+
+  axios.get(bookapiUrl).then((res) => {
+    var respondedBooks = [];
+
+    if(res.error) {
+      throw new Error('unable to get book response');
+    }
+
+    var books = res.data.items.filter((book) => book.accessInfo.pdf.isAvailable === true);
+
+    console.log(books);
+
+    books.forEach((book) => {
+      respondedBooks.push({
+        id: book.id,
+        title: book.volumeInfo.title,
+        author: book.volumeInfo.authors[0],
+        description: book.volumeInfo.description,
+        image: book.volumeInfo.imageLinks.smallThumbnail,
+        amount: book.saleInfo.listPrice.amount,
+        readUrl: `https://books.google.com.ua/books?id=${book.id}&lpg=PP1&pg=PP1&output=embed`
+      });
+    });
+
+    console.log(respondedBooks);
+
+    respondedBooks.forEach((bookItem) => {
+      const book = new Book(bookItem);
+
+      book.save().then((result) => {
+        console.log(result);
+      }).catch((e) => {
+        console.log(e);
+        });
+      });
+
+    response.render('books.hbs', {
+      title: 'books page',
+      isAuthorized: request.session.isAuthorized || false,
+      books: respondedBooks,
+      css: ['profile.css']
+    });
+
+  }).catch((error) => {
+    if(error.code === 'ENOTFOUND') {
+      console.log('unable to connect to server');
+    } else {
+      console.log(error.message);
+    }
+  });
+
+});
+
+// end of test route for book response
 
 // logout route region
 app.get('/logout', authenticate, async (req, res) => {
