@@ -281,7 +281,7 @@ app.get('/books', async (request, response) => {
   //   css: ['profile.css']
   // });
 
-  initial method view for initializing books database
+  // initial method view for initializing books database
   var query = '*';
   var bookapiUrl = `https://www.googleapis.com/books/v1/volumes?q=${query}&format=json`;
 
