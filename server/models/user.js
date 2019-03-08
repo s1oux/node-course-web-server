@@ -65,6 +65,16 @@ var UserSchema = new mongoose.Schema({
       type: String,
       required:true
     }
+  }],
+  offers: [{
+      offerId: {
+        type: mongoose.Schema.Types.ObjectId
+      }
+  }],
+  downloadedBooks: [{
+    bookId: {
+      type: String
+    }
   }]
 });
 

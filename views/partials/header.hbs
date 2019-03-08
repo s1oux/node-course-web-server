@@ -72,7 +72,17 @@
           {{/if}}
 
         {{else}}
-          <div class="row">
+          <div class="d-flex justify-content-between align-items-center">
+            <div class="btn-group">
+              <form action="/signIn" method="get">
+                <button class="btn btn-sm btn-secondary" type="submit" name="button">SignIn</button>
+              </form>
+              <form action="/signUp" method="get">
+                <button class="btn btn-sm btn-outline-secondary" type="submit" name="button">SignUp</button>
+              </form>
+            </div>
+          </div>
+          <!-- <div class="row">
             <div class="col">
               <form action="/signIn" method="get">
                 <button class="btn btn-secondary" type="submit" name="button">SignIn</button>
@@ -84,7 +94,7 @@
                 <button class="btn btn-secondary" type="submit" name="button">SignUp</button>
               </form>
             </div>
-          </div>
+          </div> -->
         {{/if}}
       </div>
 

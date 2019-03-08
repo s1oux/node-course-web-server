@@ -12,6 +12,7 @@ const axios = require('axios');
 var {mongoose} = require('./db/mongoose');
 var {User} = require('./models/user');
 var {Book} = require('./models/book');
+var {Offer} = require('./models/offer');
 var {authenticate} = require('./middleware/authenticate');
 
 var app = express();
@@ -42,28 +43,126 @@ app.use('/js', express.static(__dirname + '/../node_modules/jquery/dist')); // r
 app.use('/css', express.static(__dirname + '/../node_modules/bootstrap/dist/css')); // redirect CSS bootstrap
 
 // main page
-app.get('/', (request, response) => {
-  response.render('home.hbs', {
-    title: 'Home',
-    welcomeMessage: 'Nu darova stalker',
-    isAuthorized: request.session.isAuthorized || false
-  });
-});
-
-app.post('/', urlencodedParser, (request, response) => {
-  if(!request.body) {
-    return response.status(400).send();
-  }
+app.get('/', async (request, response) => {
+  const books = await Book.find();
 
   response.render('home.hbs', {
     title: 'Home',
-    welcomeMessage: 'Nu darova stalker',
-    respondedMessage: request.body.message,
-    isAuthorized: request.session.isAuthorized || false
+    isAuthorized: request.session.isAuthorized || false,
+    books: books,
+    css: ['profile.css']
   });
+
+  // response.render('home.hbs', {
+  //   title: 'Home',
+  //   welcomeMessage: 'Nu darova stalker',
+  //   isAuthorized: request.session.isAuthorized || false
+  // });
 });
 
 // end of main page region
+
+// book manipulation page region
+
+//view
+app.get('/books/view/:id', async (req, res) => {
+  const id = req.params.id;
+  const book = await Book.findOne({ id });
+
+  res.render('book-view.hbs', {
+    title: 'Book',
+    isAuthorized: req.session.isAuthorized,
+    book: book,
+    css: ['book-view.css']
+  });
+});
+
+// read route
+app.get('/books/read/:id', async (req, res) => {
+  const id = req.params.id;
+  const book = await Book.findOne({ id });
+
+  res.render('book-read.hbs', {
+    title: 'Reading',
+    isAuthorized: req.session.isAuthorized,
+    book: book,
+    css: ['profile.css']
+  });
+});
+
+// buy route
+app.get('/books/buy/:id', authenticate, async (request, response) => {
+  const id = request.params.id;
+  const token = request.session.secureToken;
+
+  try {
+    const user = await User.findByToken(token);
+    const book = await Book.findOne({ id });
+    const manager = await User.findOne({ role: 'manager' });
+
+    const body = {
+      bookId: book.id,
+      customerEmail: user.email,
+      customerDept: user.department,
+      customerCity: user.city,
+      customerPhone: user.phonenumber
+    };
+
+    const offer = new Offer(body);
+    console.log(offer);
+    await offer.save();
+
+    manager.offers = manager.offers.concat([{offerId: offer._id}]);
+
+    const result = await User.updateOne(
+      { "_id" : manager._id },
+      { $set : {
+        "offers" : manager.offers } }
+    );
+
+    console.log(result);
+
+    response.render('confirmation.hbs', {
+      title: 'Response',
+      message: 'Your request was registered',
+      isAuthorized: request.session.isAuthorized || false
+    });
+  } catch (e) {
+    request.session.returnTo = request.originalUrl;
+    resuest.redirect('/signIn');
+    // res.status(401).send(e);
+  }
+});
+
+// download route
+app.get('/books/download/:id', authenticate, async (request, response) => {
+  const id = request.params.id;
+  const token = request.session.secureToken;
+
+  try {
+    const user = await User.findByToken(token);
+
+    user.downloadedBooks = user.downloadedBooks.concat([{bookId: id}]);
+    // console.log('downloadedBooks:', user);
+
+    const result = await User.updateOne(
+      { "_id" : user._id },
+      { $set : {
+          "downloadedBooks" : user.downloadedBooks
+        }
+      });
+
+    console.log(result);
+    response.redirect('/');
+  } catch (e) {
+    req.session.returnTo = request.originalUrl;
+    res.redirect('/signIn');
+    // res.status(401).send(e);
+  }
+});
+
+
+// end of book manipulation page region
 
 // login page region
 app.get('/signIn', (request, response) => {
@@ -242,6 +341,65 @@ app.get('/admin/remove/:email', authenticate, async (req, res) => {
 });
 // end of admin page region
 
+
+// region of manager respondedMessage
+app.get('/manager', authenticate, async (req, res) => {
+  const manager = await User.findOne({ role: 'manager' });
+  const offers = await Offer.find();
+
+
+
+  res.render('manager.hbs', {
+    title: 'Manager',
+    isAuthorized: req.session.isAuthorized,
+    isAdmin: req.session.isAdmin,
+    css: ['admin.css'],
+    offers
+  });
+});
+
+// route changing offer's status to in progress
+app.post('/manager/progress/:id', urlencodedParser, authenticate, async (req, res) => {
+  const id = req.params.id;
+
+  const result = await Offer.updateOne(
+    {"_id": id},
+    { $set : {
+      "inProgress" : true } }
+    );
+
+    console.log(result);
+
+  res.redirect('/manager');
+});
+
+// route changing offer's status to completed
+app.post('/manager/complete/:id', urlencodedParser, authenticate, async (req, res) => {
+  const id = req.params.id;
+
+  const result = await Offer.updateOne(
+    {"_id": id},
+    { $set : {
+      "completed" : true } }
+    );
+
+    console.log(result);
+
+  res.redirect('/manager');
+});
+
+// route deleting offer by id
+app.delete('/manager/delete/:id', urlencodedParser, authenticate, async (req, res) => {
+  const id = req.params.email;
+
+  const offer = await Offer.remove({ id });
+  console.log(manager);
+
+  res.redirect('/manager');
+});
+// end of region
+
+
 // region of protected page
 app.get('/about', authenticate, (request, response) => {
 
@@ -272,68 +430,68 @@ app.get('/projects', (request, response) => {
 app.get('/books', async (request, response) => {
   // right method for displaying books
   //
-  const books = await Book.find();
-
-  response.render('books.hbs', {
-    title: 'books page',
-    isAuthorized: request.session.isAuthorized || false,
-    books: books,
-    css: ['profile.css']
-  });
+  // const books = await Book.find();
+  //
+  // response.render('books.hbs', {
+  //   title: 'books page',
+  //   isAuthorized: request.session.isAuthorized || false,
+  //   books: books,
+  //   css: ['profile.css']
+  // });
 
   // initial method view for initializing books database
-  // var query = '*';
-  // var bookapiUrl = `https://www.googleapis.com/books/v1/volumes?q=${query}&format=json`;
-  //
-  // axios.get(bookapiUrl).then((res) => {
-  //   var respondedBooks = [];
-  //
-  //   if(res.error) {
-  //     throw new Error('unable to get book response');
-  //   }
-  //
-  //   var books = res.data.items.filter((book) => book.accessInfo.pdf.isAvailable === true);
-  //
-  //   console.log(books);
-  //
-  //   books.forEach((book) => {
-  //     respondedBooks.push({
-  //       id: book.id,
-  //       title: book.volumeInfo.title,
-  //       author: book.volumeInfo.authors[0],
-  //       description: book.volumeInfo.description,
-  //       image: book.volumeInfo.imageLinks.smallThumbnail,
-  //       amount: book.saleInfo.listPrice.amount,
-  //       readUrl: `https://books.google.com.ua/books?id=${book.id}&lpg=PP1&pg=PP1&output=embed`
-  //     });
-  //   });
-  //
-  //   console.log(respondedBooks);
-  //
-  //   respondedBooks.forEach((bookItem) => {
-  //     const book = new Book(bookItem);
-  //
-  //     book.save().then((result) => {
-  //       console.log(result);
-  //     }).catch((e) => {
-  //       console.log(e);
-  //       });
-  //     });
-  //
-  //   response.render('books.hbs', {
-  //     title: 'books page',
-  //     isAuthorized: request.session.isAuthorized || false,
-  //     books: respondedBooks,
-  //     css: ['profile.css']
-  //   });
-  //
-  // }).catch((error) => {
-  //   if(error.code === 'ENOTFOUND') {
-  //     console.log('unable to connect to server');
-  //   } else {
-  //     console.log(error.message);
-  //   }
-  // });
+  var query = '*';
+  var bookapiUrl = `https://www.googleapis.com/books/v1/volumes?q=${query}&format=json`;
+
+  axios.get(bookapiUrl).then((res) => {
+    var respondedBooks = [];
+
+    if(res.error) {
+      throw new Error('unable to get book response');
+    }
+
+    var books = res.data.items.filter((book) => book.accessInfo.pdf.isAvailable === true && book.saleInfo.saleability !== 'NOT_FOR_SALE');
+
+    console.log(books);
+
+    books.forEach((book) => {
+      respondedBooks.push({
+        id: book.id,
+        title: book.volumeInfo.title,
+        author: book.volumeInfo.authors[0],
+        description: book.volumeInfo.description,
+        image: book.volumeInfo.imageLinks.smallThumbnail,
+        amount: book.saleInfo.listPrice.amount,
+        readUrl: `https://books.google.com.ua/books?id=${book.id}&lpg=PP1&pg=PP1&output=embed`
+      });
+    });
+
+    console.log(respondedBooks);
+
+    respondedBooks.forEach((bookItem) => {
+      const book = new Book(bookItem);
+
+      book.save().then((result) => {
+        console.log(result);
+      }).catch((e) => {
+        console.log(e);
+        });
+      });
+
+    response.render('books.hbs', {
+      title: 'books page',
+      isAuthorized: request.session.isAuthorized || false,
+      books: respondedBooks,
+      css: ['profile.css']
+    });
+
+  }).catch((error) => {
+    if(error.code === 'ENOTFOUND') {
+      console.log('unable to connect to server');
+    } else {
+      console.log(error.message);
+    }
+  });
 
 });
 

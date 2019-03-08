@@ -6,17 +6,20 @@
         {{#each books}}
           <div class="col-md-4">
             <div class="card mb-4 shadow-sm">
-              <img src="{{this.image}}" width="100%" height="225"alt="this.title"/>
+              <div style="margin:25px 75px 5px 75px;">
+                <img src="{{this.image}}" width="100%" height="300"alt="this.title"/>
+              </div>
 
               <div class="card-body">
                 <p class="card-text">{{this.title}}</p>
                 <p class="card-text">{{this.author}}</p>
                 <div class="d-flex justify-content-between align-items-center">
                   <div class="btn-group">
+                    <button type="button" class="btn btn-sm btn-secondary" style="margin:0 25px 0 0;">Open</button>
                     <button type="button" class="btn btn-sm btn-outline-secondary">Buy</button>
                     <button type="button" class="btn btn-sm btn-outline-secondary">Read</button>
                   </div>
-                  <small class="text-muted">{{this.amount}}</small>
+                  <span><b>{{this.amount}} &#x20b4;</b></span>
                 </div>
               </div>
             </div>

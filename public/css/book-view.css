@@ -1,0 +1,16 @@
+
+/*****************globals*************/
+body {
+  margin-top: 65px;
+  margin-bottom: 65px;
+  overflow-x: hidden; }
+
+.card {
+  background: #eee;
+  padding: 1em;
+ }
+
+ .custom-button {
+   min-width: 100px;
+   margin-bottom: 10px;
+ }

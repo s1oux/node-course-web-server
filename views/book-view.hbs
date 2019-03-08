@@ -1,0 +1,32 @@
+<div class="container">
+  <div class="card">
+    <div class="row">
+      <div class="col">
+        <img src="{{book.image}}" class="rounded" width="100%" height="241" alt="{{book.title}}"/>
+      </div>
+      <div class="col">
+        <h6>{{book.title}}</h6>
+        <p></p>
+        <h6>{{book.author}}</h6>
+        <p></p>
+        <form action="/books/read/{{book.id}}" method="get">
+          <button class="btn btn-sm btn-secondary custom-button" type="submit" name="button">Read</button>
+        </form>
+
+        <form action="/books/buy/{{book.id}}" method="get">
+          <button class="btn btn-sm btn-outline-secondary custom-button" type="submit" name="button">Buy <b>&#x20b4;{{book.amount}}</b></button>
+        </form>
+
+        <form action="/books/download/{{book.id}}" method="get">
+          <button class="btn btn-sm btn-outline-secondary custom-button" type="submit" name="button">Download</button>
+        </form>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col">
+        <p class="text-justify">{{book.description}}</p>
+      </div>
+    </div>
+  </div>
+</div>
