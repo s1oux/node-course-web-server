@@ -2,9 +2,45 @@
 
   <nav class="navbar navbar-expand-md navbar-dark fixed-bottom bg-dark">
 
-    {{#if isAdmin}}
-      <div class="container text-center">
-        <p class="text-center">Administration page</p>
+    {{#if isAuthorized}}
+      {{#if isAdmin}}
+        <div class="container">
+          <p class="text-center">Administration page</p>
+        </div>
+      {{else}}
+        <div class="container">
+          <!-- <div class="d-flex justify-content-between align-items-center">
+            <div class="btn-group">
+              <form action="/" method="get">
+                <button class="btn btn-sm btn-secondary" type="submit" name="button">Book Shelf</button>
+              </form>
+              <form action="/downloaded" method="get">
+                <button class="btn btn-sm btn-secondary" type="submit" name="button">Own library</button>
+              </form>
+            </div>
+          </div> -->
+          <div class="mr-auto">
+            <form action="/" method="get">
+              <button class="btn btn-sm btn-secondary" style="min-width:150px;" type="submit" name="button">Book Shelf</button>
+            </form>
+          </div>
+
+          <div class="ml-auto">
+            <form action="/downloaded" method="get">
+              <button class="btn btn-sm btn-secondary" style="min-width:150px;" type="submit" name="button">Own library</button>
+            </form>
+          </div>
+        </div>
+        {{/if}}
+    {{else}}
+      <div class="container">
+        <p class="text-center">librabok</p>
+      </div>
+    {{/if}}
+
+    <!-- {{#if isAdmin}}
+      <div class="container">
+        <h5 class="text-justify">Administration page</h3>
       </div>
     {{else}}
       <div class="container">
@@ -20,7 +56,7 @@
           </form>
         </div>
       </div>
-    {{/if}}
+    {{/if}} -->
 
 
   </nav>

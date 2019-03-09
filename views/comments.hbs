@@ -1,0 +1,35 @@
+<div class="container moar-margin">
+  <p>{{book.title}}</p>
+
+  <form action="/books/comments/make/{{book.id}}" method="post">
+    <div class="input-group">
+      <textarea class="form-control" name="messageText" placeholder="Enter your comments here..." aria-label=""></textarea>
+      <div class="input-group-append">
+        <button class="btn btn-outline-secondary" type="submit">Send</button>
+      </div>
+    </div>
+  </form>
+
+  <p></p>
+
+  {{#if comments.length}}
+    <table class="table">
+      <thead class="thead-dark">
+        <tr>
+          <th scope="col">User</th>
+          <th scope="col">Text</th>
+        </tr>
+      </thead>
+      <tbody>
+        {{#each comments}}
+        <tr>
+          <td>{{this.username}}</td>
+          <td>{{this.messageBody}}</td>
+        </tr>
+        {{/each}}
+      </tbody>
+    </table>
+  {{else}}
+    <p class="text-center">Have no comments yet.</p>
+  {{/if}}
+</div>

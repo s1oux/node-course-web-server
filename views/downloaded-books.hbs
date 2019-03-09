@@ -1,0 +1,39 @@
+<div class="album py-5 bg-light">
+  <div class="container">
+
+    <div class="row">
+
+      {{#each books}}
+        <div class="col-md-4">
+          <div class="card mb-4 shadow-sm">
+            <div style="margin:15px 75px 5px 75px;">
+              <img src="{{this.image}}" class="rounded" width="100%" height="300" alt="{{this.title}}"/>
+            </div>
+
+            <div class="card-body">
+              <p class="card-text">{{this.title}}</p>
+              <p class="card-text">{{this.author}}</p>
+              <div class="d-flex justify-content-between align-items-center">
+                <div class="btn-group">
+                  <form action="/books/view/{{this.id}}" method="get">
+                    <button class="btn btn-sm btn-secondary" style="min-width:75px; margin:0 25px 0 0;" type="submit" name="button">Open</button>
+                  </form>
+
+                  <form action="/books/read/{{this.id}}" method="get">
+                    <button class="btn btn-sm btn-outline-secondary" style="min-width:65px;" type="submit" name="button">Read</button>
+                  </form>
+
+                  <form action="/books/buy/{{this.id}}" method="get">
+                    <button class="btn btn-sm btn-outline-secondary" style="min-width:65px;" type="submit" name="button">Buy</button>
+                  </form>
+                </div>
+                <span><b>{{this.amount}} &#x20b4;</b></span>
+              </div>
+            </div>
+          </div>
+        </div>
+      {{/each}}
+
+    </div>
+  </div>
+</div>

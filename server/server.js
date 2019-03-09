@@ -13,6 +13,7 @@ var {mongoose} = require('./db/mongoose');
 var {User} = require('./models/user');
 var {Book} = require('./models/book');
 var {Offer} = require('./models/offer');
+var {Comment} = require('./models/comment');
 var {authenticate} = require('./middleware/authenticate');
 
 var app = express();
@@ -162,6 +163,67 @@ app.get('/books/download/:id', authenticate, async (request, response) => {
   }
 });
 
+// route displaying comments page
+app.get('/books/comments/:id', authenticate, async (req, res) => {
+  const id = req.params.id;
+  const book = await Book.findOne({ id });
+  const comments = await Comment.find({ bookId: id });
+
+  res.render('comments.hbs', {
+    title: 'Comments',
+    isAuthorized: req.session.isAuthorized,
+    book: book,
+    comments: comments,
+    css: ['profile.css']
+  });
+});
+
+// route for sending comment
+app.post('/books/comments/make/:id',urlencodedParser, authenticate, async (req, res) => {
+  const id = req.params.id;
+  const body = _.pick(req.body, ['messageText']);
+  const token = req.session.secureToken;
+
+  const user = await User.findByToken(token);
+
+  const comment = new Comment({
+    bookId: id,
+    messageBody: body.messageText,
+    username: user.username
+  });
+  console.log(comment);
+  await comment.save();
+
+  res.redirect(`/books/comments/${id}`);
+});
+
+// route viewing books downloaded by user
+app.get('/downloaded', authenticate, async (request, response) => {
+  const token = request.session.secureToken;
+
+  try {
+    const user = await User.findByToken(token);
+    const downloadedBooksIds = user.downloadedBooks;
+    const books = [];
+    downloadedBooksIds.forEach(async (item) => {
+      Book.findOne({id : item.bookId}).then((book) => {
+
+        books.push(book);
+      });
+    });
+
+    response.render('downloaded-books.hbs', {
+      title: 'Downloaded',
+      isAuthorized: request.session.isAuthorized || false,
+      books: books,
+      css: ['profile.css']
+    });
+  } catch (e) {
+    req.session.returnTo = request.originalUrl;
+    res.redirect('/signIn');
+    // res.status(401).send(e);
+  }
+});
 
 // end of book manipulation page region
 
@@ -262,17 +324,18 @@ app.get('/admin', authenticate, async (req, res) => {
 });
 
 // display concrete manager in details
-app.get('/admin/manager/:id', urlencodedParser, authenticate, async (req, res) => {
+app.get('/admin/manager/:id', authenticate, async (req, res) => {
   const id = req.params.id;
   const manager = await User.find({ _id: id });
   console.log(manager);
+
   res.render('admin-manager.hbs', {
     title: 'Manager',
     isAuthorized: req.session.isAuthorized,
+    manager: manager,
     isAdmin: req.session.isAdmin,
     css: ['admin.css'],
-    js: ['admin.js'],
-    manager: manager
+    js: ['admin.js']
   });
 
 });

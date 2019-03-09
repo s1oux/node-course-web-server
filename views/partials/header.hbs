@@ -3,50 +3,19 @@
 
     <div class="container">
       {{#if isAdmin}}
-
+      <div class="mr-auto">
+        <a href="#" class="navbar-brand d-flex align-items-center">
+          <strong>librabok</strong>
+        </a>
+      </div>
       {{else}}
-        <div class="dropdown mr-auto">
-          <!-- <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-            <span class="navbar-toggler-icon"></span>
-          </button> -->
-          <button class="btn btn-secondary" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-            <span class="navbar-toggler-icon"></span>
-          </button>
-          <div class="dropdown-menu dropdown-menu-left" aria-labelledby="dropdownMenuButton">
-            <form action="/" method="get">
-              <button class="dropdown-item" type="submit" name="button">Home</button>
-            </form>
-            <form action="/about" method="get">
-              <button class="dropdown-item" type="submit" name="button">About</button>
-            </form>
-            <form action="/projects" method="get">
-              <button class="dropdown-item" type="submit" name="button">Projects</button>
-            </form>
-            <!-- <a class="dropdown-item" href="/">Home</a>
-            <a class="dropdown-item" href="/about">About</a>
-            <a class="dropdown-item" href="/projects">Projects</a> -->
-          </div>
+        <div class="mr-auto">
+          <a href="/" class="navbar-brand d-flex align-items-center">
+            <strong>librabok</strong>
+          </a>
         </div>
       {{/if}}
-      <!-- <div class="mr-auto">
-        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation">
-          <span class="navbar-toggler-icon"></span>
-        </button>
 
-        <div class="collapse navbar-collapse" id="navbarCollapse">
-          <ul class="navbar-nav mr-auto">
-            <li class="nav-item active">
-              <a class="nav-link" href="/">home <span class="sr-only">(current)</span></a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link" href="/about">about</a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link" href="/projects">projects</a>
-            </li>
-          </ul>
-        </div>
-      </div> -->
 
       <div class="ml-auto">
         {{#if isAuthorized}}
