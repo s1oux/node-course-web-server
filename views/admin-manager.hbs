@@ -1,0 +1,41 @@
+<div class="container">
+  <table class="table">
+    <thead class="thead-dark">
+      <tr>
+        <th scope="col">Headings</th>
+        <th scope="col">Information</th>
+      </tr>
+    </thead>
+    <tbody>
+
+      <tr>
+        <td>Email</td>
+        <td>{{manager.email}}</td>
+      </tr>
+
+      <tr>
+        <td>Username</td>
+        <td>{{manager.username}}</td>
+      </tr>
+
+      <tr>
+        <td>Phone</td>
+        <td>{{manager.phonenumber}}</td>
+      </tr>
+
+    </tbody>
+  </table>
+
+  <div class="d-flex justify-content-between align-items-center">
+    <div class="btn-group">
+      <form action="/admin/edit/{{manager.email}}" method="get">
+        <button class="btn btn-sm btn-secondary" type="submit" name="button">Edit</button>
+      </form>
+
+      <form action="/admin/remove/{{manager.email}}" method="get">
+        <button class="btn btn-sm btn-outline-dark" type="submit" name="button">Remove</button>
+      </form>
+
+    </div>
+  </div>
+</div>

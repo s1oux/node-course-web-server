@@ -36,7 +36,7 @@ OfferSchema.methods.toJSON = function () {
   var offer = this;
   var offerObject = offer.toObject();
 
-  return _.pick(offerObject, ['bookId', 'customerId', 'inProgress', 'completed']);
+  return _.pick(offerObject, ['bookId', 'customerEmail', 'customerDept', 'customerCity', 'customerPhone',  'inProgress', 'completed']);
 };
 
 

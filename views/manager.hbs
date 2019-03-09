@@ -12,11 +12,7 @@
         <tr>
           <!-- <th scope="col">#</th> -->
           <th scope="col">Book ID</th>
-          <th scope="col">Email</th>
-          <th scope="col">City</th>
-          <th scope="col">Post</th>
-          <th scope="col">Phone</th>
-          <th scope="col">Status</th>
+          <th scope="col">User Email</th>
           <th scope="col"></th>
         </tr>
       </thead>
@@ -26,71 +22,11 @@
           <!-- <th scope="row">{{@index}}</th> -->
           <td>{{this.bookId}}</td>
           <td>{{this.customerEmail}}</td>
-          <td>{{this.customerCity}}</td>
-          <td>{{this.customerDept}}</td>
-          <td>{{this.customerPhone}}</td>
-          <td>
-            {{#if this.inProgress}}
-              In progress
-            {{else if this.completed}}
-              Completed
-            {{else}}
-              New Offer
-            {{/if}}
-          </td>
           <td>
 
-            <div class="dropdown">
-              <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownAction" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                Action
-              </button>
-              <div class="dropdown-menu dropdown-menu" aria-labelledby="dropdownAction">
-                <form action="/manager/progress/{{this._id}}" method="post">
-                  <button class="btn btn-sm btn-secondary" type="submit" name="button">Process</button>
-                </form>
-                <form action="/manager/complete/{{this._id}}" method="post">
-                  <button class="btn btn-sm btn-secondary" type="submit" name="button">Complete</button>
-                </form>
-                <div class="dropdown-divider"></div>
-                <form action="/manager/delete/{{this._id}}" method="delete">
-                  <button class="btn btn-sm btn-secondary" type="submit" name="button">Delete</button>
-                </form>
-              </div>
-            </div>
-
-
-            <!-- <div class="btn-group">
-              <button type="button" class="btn btn-secondary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                Action
-              </button>
-              <div class="dropdown-menu">
-                <form action="/manager/progress/{{this._id}}" method="post">
-                  <button class="btn btn-sm btn-secondary" type="submit" name="button">Process</button>
-                </form>
-                <form action="/manager/complete/{{this._id}}" method="post">
-                  <button class="btn btn-sm btn-secondary" type="submit" name="button">Complete</button>
-                </form>
-                <div class="dropdown-divider"></div>
-                <form action="/manager/delete/{{this._id}}" method="delete">
-                  <button class="btn btn-sm btn-secondary" type="submit" name="button">Delete</button>
-                </form>
-              </div>
-            </div> -->
-
-
-            <!-- old button group <div class="d-flex justify-content-between align-items-center">
-
-              <div class="btn-group">
-                <form action="/admin/edit/{{this.email}}" method="get">
-                  <button class="btn btn-sm btn-secondary" type="submit" name="button">Edit</button>
-                </form>
-
-                <form action="/admin/remove/{{this.email}}" method="get">
-                  <button class="btn btn-sm btn-outline-dark" type="submit" name="button">Remove</button>
-                </form>
-              </div>
-
-            </div> end of old button group -->
+            <form action="/manager/offer/{{this._id}}" method="get">
+              <button class="btn btn-sm btn-secondary" type="submit" name="button">Details</button>
+            </form>
 
           </td>
         </tr>
