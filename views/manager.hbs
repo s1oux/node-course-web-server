@@ -1,4 +1,4 @@
-<div class="container">
+<div class="container moar-margin">
 
   <!-- <form action="/admin/add" method="get">
     <button class="btn btn-outline-dark" type="submit" name="button">
@@ -12,7 +12,7 @@
         <tr>
           <!-- <th scope="col">#</th> -->
           <th scope="col">Book ID</th>
-          <th scope="col">User Email</th>
+          <th scope="col">User</th>
           <th scope="col"></th>
         </tr>
       </thead>
@@ -21,7 +21,7 @@
         <tr>
           <!-- <th scope="row">{{@index}}</th> -->
           <td>{{this.bookId}}</td>
-          <td>{{this.customerEmail}}</td>
+          <td>{{this.customerName}}</td>
           <td>
 
             <form action="/manager/offer/{{this._id}}" method="get">

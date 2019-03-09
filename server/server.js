@@ -104,13 +104,14 @@ app.get('/books/buy/:id', authenticate, async (request, response) => {
     const body = {
       bookId: book.id,
       customerEmail: user.email,
+      customerName: user.username,
       customerDept: user.department,
       customerCity: user.city,
       customerPhone: user.phonenumber
     };
 
     const offer = new Offer(body);
-    console.log(offer);
+    // console.log(offer);
     await offer.save();
 
     manager.offers = manager.offers.concat([{offerId: offer._id}]);
@@ -121,7 +122,7 @@ app.get('/books/buy/:id', authenticate, async (request, response) => {
         "offers" : manager.offers } }
     );
 
-    console.log(result);
+    // console.log(result);
 
     response.render('confirmation.hbs', {
       title: 'Response',
@@ -154,7 +155,7 @@ app.get('/books/download/:id', authenticate, async (request, response) => {
         }
       });
 
-    console.log(result);
+    // console.log(result);
     response.redirect('/');
   } catch (e) {
     req.session.returnTo = request.originalUrl;
@@ -191,7 +192,7 @@ app.post('/books/comments/make/:id',urlencodedParser, authenticate, async (req, 
     messageBody: body.messageText,
     username: user.username
   });
-  console.log(comment);
+  // console.log(comment);
   await comment.save();
 
   res.redirect(`/books/comments/${id}`);
@@ -316,8 +317,7 @@ app.get('/admin', authenticate, async (req, res) => {
     title: 'Admin',
     isAuthorized: req.session.isAuthorized,
     isAdmin: req.session.isAdmin,
-    css: ['admin.css'],
-    js: ['admin.js'],
+    css: ['profile.css'],
     managers
   });
 
@@ -326,16 +326,15 @@ app.get('/admin', authenticate, async (req, res) => {
 // display concrete manager in details
 app.get('/admin/manager/:id', authenticate, async (req, res) => {
   const id = req.params.id;
-  const manager = await User.find({ _id: id });
-  console.log(manager);
+  const manager = await User.findOne({ _id: id });
+  // console.log(manager);
 
-  res.render('admin-manager.hbs', {
+  res.render('manager-details.hbs', {
     title: 'Manager',
     isAuthorized: req.session.isAuthorized,
     manager: manager,
     isAdmin: req.session.isAdmin,
-    css: ['admin.css'],
-    js: ['admin.js']
+    css: ['profile.css']
   });
 
 });
@@ -400,7 +399,7 @@ app.post('/admin/edit', urlencodedParser, authenticate, async (req, res) => {
         "phonenumber" : body.phonenumber } }
     );
 
-    console.log(result);
+    // console.log(result);
 
     res.redirect('/admin');
   } catch (e) {
@@ -415,7 +414,7 @@ app.get('/admin/remove/:email', authenticate, async (req, res) => {
   const email = req.params.email;
 
   const manager = await User.remove({ email });
-  console.log(manager);
+  // console.log(manager);
 
   res.redirect('/admin');
 });
@@ -431,7 +430,7 @@ app.get('/manager', authenticate, async (req, res) => {
     title: 'Manager',
     isAuthorized: req.session.isAuthorized,
     isAdmin: req.session.isAdmin,
-    css: ['admin.css'],
+    css: ['profile.css'],
     offers
   });
 });
@@ -439,14 +438,14 @@ app.get('/manager', authenticate, async (req, res) => {
 // route for displation concrete offer details
 app.get('/manager/offer/:id', urlencodedParser, authenticate, async (req, res) => {
   const id = req.params.id;
-  const offer = await Offer.find({ _id: id });
+  const offer = await Offer.findOne({ _id: id });
 
   res.render('manager-offer.hbs', {
     title: 'Details',
     isAuthorized: req.session.isAuthorized,
     isAdmin: req.session.isAdmin,
     offer: offer,
-    css: ['admin.css']
+    css: ['profile.css']
   });
 });
 
@@ -461,7 +460,7 @@ app.post('/manager/progress/:id', urlencodedParser, authenticate, async (req, re
       "inProgress" : true } }
     );
 
-    console.log(result);
+    // console.log(result);
 
   res.redirect('/manager');
 });
@@ -476,17 +475,16 @@ app.post('/manager/complete/:id', urlencodedParser, authenticate, async (req, re
       "completed" : true } }
     );
 
-    console.log(result);
+    // console.log(result);
 
   res.redirect('/manager');
 });
 
 // route deleting offer by id
 app.get('/manager/delete/:id', urlencodedParser, authenticate, async (req, res) => {
-  const id = req.params.email;
+  const id = req.params.id;
 
-  const offer = await Offer.remove({ id });
-  console.log(manager);
+  const offer = await Offer.remove({ _id: id });
 
   res.redirect('/manager');
 });
@@ -627,6 +625,7 @@ app.get('/profile', authenticate, async (req, res) => {
     // res.status(401).send(e);
   }
 });
+
 
 app.get('/profile/edit', authenticate, async (req, res) => {
   const token = req.session.secureToken;

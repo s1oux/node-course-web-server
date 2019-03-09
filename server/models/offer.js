@@ -10,6 +10,10 @@ var OfferSchema = new mongoose.Schema({
     type: String,
     required: true
   },
+  customerName: {
+    type: String,
+    required: true
+  },
   customerDept: {
     type: String,
     required: true
@@ -36,7 +40,7 @@ OfferSchema.methods.toJSON = function () {
   var offer = this;
   var offerObject = offer.toObject();
 
-  return _.pick(offerObject, ['bookId', 'customerEmail', 'customerDept', 'customerCity', 'customerPhone',  'inProgress', 'completed']);
+  return _.pick(offerObject, ['bookId', 'customerEmail', 'customerName', 'customerDept', 'customerCity', 'customerPhone',  'inProgress', 'completed']);
 };
 
 
