@@ -206,12 +206,19 @@ app.get('/downloaded', authenticate, async (request, response) => {
     const user = await User.findByToken(token);
     const downloadedBooksIds = user.downloadedBooks;
     const books = [];
-    downloadedBooksIds.forEach(async (item) => {
-      Book.findOne({id : item.bookId}).then((book) => {
+    // downloadedBooksIds.forEach(async (item) => {
+    //   Book.findOne({id : item.bookId}).then((book) => {
+    //
+    //     books.push(book);
+    //   });
+    // });
 
-        books.push(book);
-      });
+    await asyncForEach(downloadedBooksIds, async(item) => {
+      let book = await Book.findOne({id: item.bookId});
+      books.push(book);
     });
+
+    // console.log(books);
 
     response.render('downloaded-books.hbs', {
       title: 'Downloaded',
@@ -675,6 +682,16 @@ app.post('/profile/edit', urlencodedParser, authenticate, async (req, res) => {
   }
 });
 // end of profile route region
+
+async function asyncForEach(array, callback) {
+  for (let index = 0; index < array.length; index++) {
+    await callback(array[index], index, array);
+  }
+}
+
+
+
+// strange routes
 
 app.get('/bad', (request, response) => {
   response.send({
