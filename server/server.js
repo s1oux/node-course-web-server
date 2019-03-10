@@ -494,71 +494,71 @@ app.get('/manager/delete/:id', urlencodedParser, authenticate, async (req, res) 
 
 // test route for book response
 
-app.get('/books', async (request, response) => {
+app.get('/books/:query', async (request, response) => {
   // right method for displaying books
   //
-  const books = await Book.find();
-
-  response.render('books.hbs', {
-    title: 'books page',
-    isAuthorized: request.session.isAuthorized || false,
-    books: books,
-    css: ['profile.css']
-  });
+  // const books = await Book.find();
+  //
+  // response.render('books.hbs', {
+  //   title: 'books page',
+  //   isAuthorized: request.session.isAuthorized || false,
+  //   books: books,
+  //   css: ['profile.css']
+  // });
 
   // initial method view for initializing books database
-  // var query = '*';
-  // var bookapiUrl = `https://www.googleapis.com/books/v1/volumes?q=${query}&format=json`;
-  //
-  // axios.get(bookapiUrl).then((res) => {
-  //   var respondedBooks = [];
-  //
-  //   if(res.error) {
-  //     throw new Error('unable to get book response');
-  //   }
-  //
-  //   var books = res.data.items.filter((book) => book.accessInfo.pdf.isAvailable === true && book.saleInfo.saleability !== 'NOT_FOR_SALE');
-  //
-  //   console.log(books);
-  //
-  //   books.forEach((book) => {
-  //     respondedBooks.push({
-  //       id: book.id,
-  //       title: book.volumeInfo.title,
-  //       author: book.volumeInfo.authors[0],
-  //       description: book.volumeInfo.description,
-  //       image: book.volumeInfo.imageLinks.smallThumbnail,
-  //       amount: book.saleInfo.listPrice.amount,
-  //       readUrl: `https://books.google.com.ua/books?id=${book.id}&lpg=PP1&pg=PP1&output=embed`
-  //     });
-  //   });
-  //
-  //   console.log(respondedBooks);
-  //
-  //   respondedBooks.forEach((bookItem) => {
-  //     const book = new Book(bookItem);
-  //
-  //     book.save().then((result) => {
-  //       console.log(result);
-  //     }).catch((e) => {
-  //       console.log(e);
-  //       });
-  //     });
-  //
-  //   response.render('books.hbs', {
-  //     title: 'books page',
-  //     isAuthorized: request.session.isAuthorized || false,
-  //     books: respondedBooks,
-  //     css: ['profile.css']
-  //   });
-  //
-  // }).catch((error) => {
-  //   if(error.code === 'ENOTFOUND') {
-  //     console.log('unable to connect to server');
-  //   } else {
-  //     console.log(error.message);
-  //   }
-  // });
+  var query = request.params.query;
+  var bookapiUrl = `https://www.googleapis.com/books/v1/volumes?q=${query}&format=json`;
+
+  axios.get(bookapiUrl).then((res) => {
+    var respondedBooks = [];
+
+    if(res.error) {
+      throw new Error('unable to get book response');
+    }
+
+    var books = res.data.items.filter((book) => book.accessInfo.pdf.isAvailable === true && book.saleInfo.saleability !== 'NOT_FOR_SALE');
+
+    console.log(books);
+
+    books.forEach((book) => {
+      respondedBooks.push({
+        id: book.id,
+        title: book.volumeInfo.title,
+        author: book.volumeInfo.authors[0],
+        description: book.volumeInfo.description,
+        image: book.volumeInfo.imageLinks.smallThumbnail,
+        amount: book.saleInfo.listPrice.amount,
+        readUrl: `https://books.google.com.ua/books?id=${book.id}&lpg=PP1&pg=PP1&output=embed`
+      });
+    });
+
+    console.log(respondedBooks);
+
+    respondedBooks.forEach((bookItem) => {
+      const book = new Book(bookItem);
+
+      book.save().then((result) => {
+        console.log(result);
+      }).catch((e) => {
+        console.log(e);
+        });
+      });
+
+    response.render('books.hbs', {
+      title: 'books page',
+      isAuthorized: request.session.isAuthorized || false,
+      books: respondedBooks,
+      css: ['profile.css']
+    });
+
+  }).catch((error) => {
+    if(error.code === 'ENOTFOUND') {
+      console.log('unable to connect to server');
+    } else {
+      console.log(error.message);
+    }
+  });
 
 });
 
@@ -668,61 +668,14 @@ app.post('/profile/edit', urlencodedParser, authenticate, async (req, res) => {
 });
 // end of profile route region
 
+
+// function for asynchronous forEach
 async function asyncForEach(array, callback) {
   for (let index = 0; index < array.length; index++) {
     await callback(array[index], index, array);
   }
 }
 
-
-
-// strange routes
-
-app.get('/bad', (request, response) => {
-  response.send({
-    errorMessage: 'something bad has occurred'
-  });
-});
-
-//routes for user
-
-app.post('/users', async (req, res) => {
-  try {
-    const body = _.pick(req.body, ['email', 'password']);
-    const user = new User(body);
-
-    await user.save();
-    const token = user.generateAuthToken();
-    res.header('x-auth', token).send(user);
-  } catch(e) {
-    res.status(400).send(e);
-  }
-});
-
-app.get('/users/me', authenticate, (req, res) => {
-  res.send(req.user);
-});
-
-app.post('/users/login', async (req, res) => {
-  try {
-    const body = _.pick(req.body, ['email', 'password']);
-    const user = await User.findByCredentials(body.email, body.password);
-    const token = await user.generateAuthToken();
-
-    res.header('x-auth', token).send(user);
-  } catch (e) {
-    res.status(400).send();
-  }
-});
-
-app.delete('/users/me/token', authenticate, async (req, res) => {
-  try {
-    await req.user.removeToken(req.token);
-    res.status(200).send();
-  } catch(e) {
-    res.status(400).send();
-  }
-});
 
 app.listen(port, () => {
   console.log(`started on port ${port}`);
