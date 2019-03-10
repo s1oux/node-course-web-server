@@ -206,12 +206,6 @@ app.get('/downloaded', authenticate, async (request, response) => {
     const user = await User.findByToken(token);
     const downloadedBooksIds = user.downloadedBooks;
     const books = [];
-    // downloadedBooksIds.forEach(async (item) => {
-    //   Book.findOne({id : item.bookId}).then((book) => {
-    //
-    //     books.push(book);
-    //   });
-    // });
 
     await asyncForEach(downloadedBooksIds, async(item) => {
       let book = await Book.findOne({id: item.bookId});
@@ -498,31 +492,6 @@ app.get('/manager/delete/:id', urlencodedParser, authenticate, async (req, res) 
 // end of region
 
 
-// region of protected page
-app.get('/about', authenticate, (request, response) => {
-
-  response.render('about.hbs', {
-    title: 'about page',
-    welcomeMessage: 'you are authorized',
-    isAuthorized: request.session.isAuthorized || false
-  });
-});
-// end of protected page region
-
-// test route for displaying book by url
-app.get('/projects', (request, response) => {
-
-  response.render('projects.hbs', {
-    title: 'projects page',
-    bookUrl: __dirname + '/../public/MeinKampf.html',
-    // bookUrl: 'https://docdro.id/QxOjFQ2',
-    isAuthorized: request.session.isAuthorized || false,
-    css: ['profile.css']
-  });
-});
-
-// end of test route for displaying books
-
 // test route for book response
 
 app.get('/books', async (request, response) => {
@@ -611,14 +580,30 @@ app.get('/logout', authenticate, async (req, res) => {
 });
 // end of region
 
+// displaying user offers routes
+app.get('/offers', authenticate, async (req, res) => {
+  const token = req.session.secureToken;
+
+  const user = await User.findByToken(token);
+
+  const offers = await Offer.find({customerEmail : user.email});
+
+  res.render('user-offers.hbs', {
+    title: 'User offers',
+    isAuthorized: req.session.isAuthorized,
+    isAdmin: req.session.isAdmin,
+    css: ['profile.css'],
+    offers
+  });
+});
+// end of displaying user offers
+
 // profile route region
 app.get('/profile', authenticate, async (req, res) => {
   const token = req.session.secureToken;
 
-  // console.log('TOKEN IN PROFILE', token);
   try {
     const user = await User.findByToken(token);
-    console.log(user);
 
     res.render('profile.hbs', {
       title: 'Profile',
@@ -640,7 +625,7 @@ app.get('/profile/edit', authenticate, async (req, res) => {
   // console.log('TOKEN IN PROFILE', token);
   try {
     const user = await User.findByToken(token);
-    console.log(user);
+    // console.log(user);
 
     res.render('profile-edit.hbs', {
       title: 'Edit Profile',

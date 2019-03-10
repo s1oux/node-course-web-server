@@ -6,8 +6,7 @@
         <tr>
           <!-- <th scope="col">#</th> -->
           <th scope="col">Book ID</th>
-          <th scope="col">User</th>
-          <th scope="col"></th>
+          <th scope="col">Status</th>
         </tr>
       </thead>
       <tbody>
@@ -15,20 +14,21 @@
         <tr>
           <!-- <th scope="row">{{@index}}</th> -->
           <td>{{this.bookId}}</td>
-          <td>{{this.customerName}}</td>
           <td>
-
-            <form action="/manager/offer/{{this._id}}" method="get">
-              <button class="btn btn-sm btn-secondary" type="submit" name="button">Details</button>
-            </form>
-
+            {{#if this.completed}}
+              Completed
+            {{else if this.inProgress}}
+              In progress
+            {{else}}
+              New Offer
+            {{/if}}
           </td>
         </tr>
         {{/each}}
       </tbody>
     </table>
   {{else}}
-    <p class="text-center">Have no offers yet.</p>
+    <p class="text-center">Have no offers information.</p>
   {{/if}}
 
 </div>
