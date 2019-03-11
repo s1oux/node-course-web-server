@@ -39,6 +39,7 @@ app.engine("hbs", expressHbs(
 app.set('view engine', 'hbs');
 app.use(express.static(__dirname + '/../public'));
 hbs.registerPartials(__dirname + '/../views/partials');
+app.use('/js', express.static(__dirname + '/../node_modules/clipboard/dist'));
 app.use('/js', express.static(__dirname + '/../node_modules/bootstrap/dist/js')); // redirect JS Bootstrap
 app.use('/js', express.static(__dirname + '/../node_modules/jquery/dist')); // redirect JS jQuery
 app.use('/css', express.static(__dirname + '/../node_modules/bootstrap/dist/css')); // redirect CSS bootstrap
@@ -137,8 +138,8 @@ app.get('/books/buy/:id', authenticate, async (request, response) => {
   }
 });
 
-// download route
-app.get('/books/download/:id', authenticate, async (request, response) => {
+// adding to library route
+app.get('/books/add/:id', authenticate, async (request, response) => {
   const id = request.params.id;
   const token = request.session.secureToken;
 
@@ -146,7 +147,6 @@ app.get('/books/download/:id', authenticate, async (request, response) => {
     const user = await User.findByToken(token);
 
     user.downloadedBooks = user.downloadedBooks.concat([{bookId: id}]);
-    // console.log('downloadedBooks:', user);
 
     const result = await User.updateOne(
       { "_id" : user._id },
@@ -155,13 +155,27 @@ app.get('/books/download/:id', authenticate, async (request, response) => {
         }
       });
 
-    // console.log(result);
     response.redirect('/');
   } catch (e) {
-    req.session.returnTo = request.originalUrl;
-    res.redirect('/signIn');
+    request.session.returnTo = request.originalUrl;
+    response.redirect('/signIn');
     // res.status(401).send(e);
   }
+});
+
+// routing to link for download page
+app.get('/books/download/:id', authenticate, async (request, response) => {
+  const id = request.params.id;
+
+  const book = await Book.findOne({ id });
+
+  response.render('book-link.hbs', {
+    title: 'Link',
+    isAuthorized: request.session.isAuthorized,
+    book: book,
+    css: ['profile.css'],
+    js: ['admin.js']
+  });
 });
 
 // route displaying comments page
@@ -497,68 +511,69 @@ app.get('/manager/delete/:id', urlencodedParser, authenticate, async (req, res) 
 app.get('/books/:query', async (request, response) => {
   // right method for displaying books
   //
-  const books = await Book.find();
-
-  response.render('books.hbs', {
-    title: 'books page',
-    isAuthorized: request.session.isAuthorized || false,
-    books: books,
-    css: ['profile.css']
-  });
+  // const books = await Book.find();
+  //
+  // response.render('books.hbs', {
+  //   title: 'books page',
+  //   isAuthorized: request.session.isAuthorized || false,
+  //   books: books,
+  //   css: ['profile.css']
+  // });
 
   // initial method view for initializing books database
-  // var query = request.params.query;
-  // var bookapiUrl = `https://www.googleapis.com/books/v1/volumes?q=${query}&format=json`;
-  //
-  // axios.get(bookapiUrl).then((res) => {
-  //   var respondedBooks = [];
-  //
-  //   if(res.error) {
-  //     throw new Error('unable to get book response');
-  //   }
-  //
-  //   var books = res.data.items.filter((book) => book.accessInfo.pdf.isAvailable === true && book.saleInfo.saleability !== 'NOT_FOR_SALE');
-  //
-  //   console.log(books);
-  //
-  //   books.forEach((book) => {
-  //     respondedBooks.push({
-  //       id: book.id,
-  //       title: book.volumeInfo.title,
-  //       author: book.volumeInfo.authors[0],
-  //       description: book.volumeInfo.description,
-  //       image: book.volumeInfo.imageLinks.smallThumbnail,
-  //       amount: book.saleInfo.listPrice.amount,
-  //       readUrl: `https://books.google.com.ua/books?id=${book.id}&lpg=PP1&pg=PP1&output=embed`
-  //     });
-  //   });
-  //
-  //   console.log(respondedBooks);
-  //
-  //   respondedBooks.forEach((bookItem) => {
-  //     const book = new Book(bookItem);
-  //
-  //     book.save().then((result) => {
-  //       console.log(result);
-  //     }).catch((e) => {
-  //       console.log(e);
-  //       });
-  //     });
-  //
-  //   response.render('books.hbs', {
-  //     title: 'books page',
-  //     isAuthorized: request.session.isAuthorized || false,
-  //     books: respondedBooks,
-  //     css: ['profile.css']
-  //   });
-  //
-  // }).catch((error) => {
-  //   if(error.code === 'ENOTFOUND') {
-  //     console.log('unable to connect to server');
-  //   } else {
-  //     console.log(error.message);
-  //   }
-  // });
+  var query = request.params.query;
+  var bookapiUrl = `https://www.googleapis.com/books/v1/volumes?q=${query}&format=json`;
+
+  axios.get(bookapiUrl).then((res) => {
+    var respondedBooks = [];
+
+    if(res.error) {
+      throw new Error('unable to get book response');
+    }
+
+    var books = res.data.items.filter((book) => book.accessInfo.pdf.isAvailable === true && book.saleInfo.saleability !== 'NOT_FOR_SALE');
+
+    console.log(books);
+
+    books.forEach((book) => {
+      respondedBooks.push({
+        id: book.id,
+        title: book.volumeInfo.title,
+        author: book.volumeInfo.authors[0],
+        description: book.volumeInfo.description,
+        image: book.volumeInfo.imageLinks.smallThumbnail,
+        amount: book.saleInfo.listPrice.amount,
+        downloadLink: book.accessInfo.pdf.acsTokenLink,
+        readUrl: `https://books.google.com.ua/books?id=${book.id}&lpg=PP1&pg=PP1&output=embed`
+      });
+    });
+
+    console.log(respondedBooks);
+
+    respondedBooks.forEach((bookItem) => {
+      const book = new Book(bookItem);
+
+      book.save().then((result) => {
+        console.log(result);
+      }).catch((e) => {
+        console.log(e);
+        });
+      });
+
+    response.render('books.hbs', {
+      title: 'books page',
+      isAuthorized: request.session.isAuthorized || false,
+      books: respondedBooks,
+      css: ['profile.css']
+    });
+
+  }).catch((error) => {
+    if(error.code === 'ENOTFOUND') {
+      console.log('unable to connect to server');
+    } else {
+      console.log(error.message);
+    }
+  });
 
 });
 

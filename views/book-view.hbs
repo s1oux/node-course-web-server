@@ -17,9 +17,15 @@
           <button class="btn btn-sm btn-outline-secondary custom-button" type="submit" name="button">Buy <b>&#x20b4;{{book.amount}}</b></button>
         </form>
 
-        <form action="/books/download/{{book.id}}" method="get">
-          <button class="btn btn-sm btn-outline-secondary custom-button" type="submit" name="button">Download</button>
-        </form>
+        <div class="btn-group">
+          <form action="/books/add/{{book.id}}" method="get" style="margin-right:10px;">
+            <button class="btn btn-sm btn-outline-secondary" type="submit" name="button">Add</button>
+          </form>
+          <form action="/books/download/{{book.id}}" method="get">
+            <button class="btn btn-sm btn-outline-secondary" type="submit" name="button">Download</button>
+          </form>
+        </div>
+
 
         <form action="/books/comments/{{book.id}}" method="get">
           <button class="btn btn-sm btn-outline-secondary custom-button" type="submit" name="button">Comments</button>

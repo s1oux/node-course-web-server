@@ -11,6 +11,10 @@ body {
  }
 
  .custom-button {
-   min-width: 100px;
+   min-width: 135px;
+   margin-bottom: 10px;
+ }
+
+ .btn-group {
    margin-bottom: 10px;
  }

@@ -27,6 +27,10 @@ var BookSchema = new mongoose.Schema({
     type: Number,
     required: true
   },
+  downloadLink: {
+    type: String,
+    required: true
+  },
   readUrl: {
     type: String,
     required: true
@@ -37,7 +41,7 @@ BookSchema.methods.toJSON = function () {
   var book = this;
   var bookObject = book.toObject();
 
-  return _.pick(bookObject, ['id', 'title', 'author', 'description', 'image', 'amount', 'readUrl']);
+  return _.pick(bookObject, ['id', 'title', 'author', 'description', 'image', 'amount', 'downloadLink', 'readUrl']);
 };
 
 BookSchema.statics.findById = function (id) {
