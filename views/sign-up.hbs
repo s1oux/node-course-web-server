@@ -7,22 +7,22 @@
       <small class="text-danger" style="margin-top:-1px;">{{errorMessage}}</small>
 
       <label for="inputEmail" class="sr-only">Email address</label>
-      <input type="email" name="email" id="inputEmail" class="form-control border border-danger" value="{{user.email}}" required="" autofocus="">
+      <input type="email" name="email" id="inputEmail" class="form-control border border-danger" placeholder="Email address" value="{{user.email}}" required="" autofocus="">
 
       <label for="inputPassword" class="sr-only">Password</label>
       <input type="password" name="password" id="inputPassword" class="form-control" placeholder="Password" required="">
 
       <label for="inputUsername" class="sr-only">Username</label>
-      <input name="username" id="inputUsername" class="form-control optional-first border border-danger" value="{{user.username}}" required="">
+      <input name="username" id="inputUsername" class="form-control optional-first border border-danger" placeholder="Username" value="{{user.username}}" required="">
 
       <label for="inputPhonenumber" class="sr-only">Phonenumber</label>
-      <input name="phonenumber" id="inputPhonenumber" class="form-control optional" value="{{user.phonenumber}}" required="">
+      <input name="phonenumber" id="inputPhonenumber" class="form-control optional" placeholder="Phone number" value="{{user.phonenumber}}" required="">
 
       <label for="inputCity" class="sr-only">City</label>
-      <input name="city" id="inputCity" class="form-control optional" value="{{user.city}}" required="">
+      <input name="city" id="inputCity" class="form-control optional" placeholder="City" value="{{user.city}}" required="">
 
       <label for="inputDepartment" class="sr-only">Department</label>
-      <input name="department" id="inputDepartment" class="form-control optional-last" value="{{user.department}}" required="">
+      <input name="department" id="inputDepartment" class="form-control optional-last" placeholder="Post department" value="{{user.department}}" required="">
     {{else}}
       <label for="inputEmail" class="sr-only">Email address</label>
       <input type="email" name="email" id="inputEmail" class="form-control" placeholder="Email address" required="" autofocus="">
