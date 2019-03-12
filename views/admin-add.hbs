@@ -1,15 +1,46 @@
 <div class="text-center container">
   <form class="form-signup" action="/admin/add" method="post">
     <h1 class="h3 mb-3 font-weight-normal">Fill in manager credentials</h1>
-    <label for="inputEmail" class="sr-only">Email address</label>
+
+    {{#if errorMessage}}
+      <small class="text-danger" style="margin-top:-1px;">{{errorMessage}}</small>
+
+      <label for="inputEmail" class="sr-only">Email address</label>
+      <input type="email" name="email" id="inputEmail" class="form-control border border-danger" value="{{user.email}}" required="" autofocus="">
+
+      <label for="inputPassword" class="sr-only">Password</label>
+      <input type="password" name="password" id="inputPassword" class="form-control" placeholder="Password" required="">
+
+      <label for="inputUsername" class="sr-only">Username</label>
+      <input name="username" id="inputUsername" class="form-control optional-first border border-danger" value="{{user.username}}" required="">
+
+      <label for="inputPhonenumber" class="sr-only">Phonenumber</label>
+      <input name="phonenumber" id="inputPhonenumber" class="form-control optional" value="{{user.phonenumber}}" required="">
+    {{else}}
+      <label for="inputEmail" class="sr-only">Email address</label>
+      <input type="email" name="email" id="inputEmail" class="form-control" placeholder="Email address" required="" autofocus="">
+
+      <label for="inputPassword" class="sr-only">Password</label>
+      <input type="password" name="password" id="inputPassword" class="form-control" placeholder="Password" required="">
+
+      <label for="inputUsername" class="sr-only">Username</label>
+      <input name="username" id="inputUsername" class="form-control optional-first" placeholder="Username" required="">
+
+      <label for="inputPhonenumber" class="sr-only">Phonenumber</label>
+      <input name="phonenumber" id="inputPhonenumber" class="form-control optional" placeholder="Phone number" required="">
+    {{/if}}
+
+    <!-- <label for="inputEmail" class="sr-only">Email address</label>
     <input type="email" name="email" id="inputEmail" class="form-control" placeholder="Email address" required="" autofocus="">
+
     <label for="inputPassword" class="sr-only">Password</label>
     <input type="password" name="password" id="inputPassword" class="form-control" placeholder="Password" required="">
 
     <label for="inputUsername" class="sr-only">Username</label>
     <input name="username" id="inputUsername" class="form-control optional-first" placeholder="Username" required="" autofocus="">
+
     <label for="inputPhonenumber" class="sr-only">Phonenumber</label>
-    <input name="phonenumber" id="inputPhonenumber" class="form-control optional" placeholder="Phone number" required="">
+    <input name="phonenumber" id="inputPhonenumber" class="form-control optional" placeholder="Phone number" required=""> -->
 
     <button class="btn btn-lg btn-primary btn-block" type="submit">Add manager</button>
 

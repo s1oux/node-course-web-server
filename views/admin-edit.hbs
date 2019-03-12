@@ -2,10 +2,27 @@
   <form class="form-signup" action="/admin/edit" method="post">
     <h1 class="h3 mb-3 font-weight-normal">Change manager credentials</h1>
 
-    <label for="inputUsername" class="sr-only">Username</label>
-    <input name="username" id="inputUsername" class="form-control optional-first" value="{{manager.username}}" required="" autofocus="">
-    <label for="inputPhonenumber" class="sr-only">Phonenumber</label>
-    <input name="phonenumber" id="inputPhonenumber" class="form-control optional" value="{{manager.phonenumber}}" required="">
+
+    {{#if errorMessage}}
+      <small class="text-danger" style="margin-top:-1px;">{{errorMessage}}</small>
+
+      <label for="inputUsername" class="sr-only">Username</label>
+      <input name="username" id="inputUsername" class="form-control optional-first border border-danger" value="{{user.username}}" required="">
+
+      <label for="inputPhonenumber" class="sr-only">Phonenumber</label>
+      <input name="phonenumber" id="inputPhonenumber" class="form-control optional" value="{{user.phonenumber}}" required="">
+    {{else}}
+      <label for="inputUsername" class="sr-only">Username</label>
+      <input name="username" id="inputUsername" class="form-control optional-first" value="{{manager.username}}" required="" autofocus="">
+
+      <label for="inputPhonenumber" class="sr-only">Phonenumber</label>
+      <input name="phonenumber" id="inputPhonenumber" class="form-control optional" value="{{manager.phonenumber}}" required="">
+    {{/if}}
+      <!-- <label for="inputUsername" class="sr-only">Username</label>
+      <input name="username" id="inputUsername" class="form-control optional-first" value="{{manager.username}}" required="" autofocus="">
+
+      <label for="inputPhonenumber" class="sr-only">Phonenumber</label>
+      <input name="phonenumber" id="inputPhonenumber" class="form-control optional" value="{{manager.phonenumber}}" required=""> -->
 
     <button class="btn btn-lg btn-primary btn-block" type="submit">Edit manager</button>
 

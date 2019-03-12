@@ -40,6 +40,7 @@ app.set('view engine', 'hbs');
 app.use(express.static(__dirname + '/../public'));
 hbs.registerPartials(__dirname + '/../views/partials');
 app.use('/js', express.static(__dirname + '/../node_modules/clipboard/dist'));
+app.use('/js', express.static(__dirname + '/../node_modules/bootstrap-validate/dist'));
 app.use('/js', express.static(__dirname + '/../node_modules/bootstrap/dist/js')); // redirect JS Bootstrap
 app.use('/js', express.static(__dirname + '/../node_modules/jquery/dist')); // redirect JS jQuery
 app.use('/css', express.static(__dirname + '/../node_modules/bootstrap/dist/css')); // redirect CSS bootstrap
@@ -55,11 +56,6 @@ app.get('/', async (request, response) => {
     css: ['profile.css']
   });
 
-  // response.render('home.hbs', {
-  //   title: 'Home',
-  //   welcomeMessage: 'Nu darova stalker',
-  //   isAuthorized: request.session.isAuthorized || false
-  // });
 });
 
 // end of main page region
@@ -112,7 +108,7 @@ app.get('/books/buy/:id', authenticate, async (request, response) => {
     };
 
     const offer = new Offer(body);
-    // console.log(offer);
+
     await offer.save();
 
     manager.offers = manager.offers.concat([{offerId: offer._id}]);
@@ -123,8 +119,6 @@ app.get('/books/buy/:id', authenticate, async (request, response) => {
         "offers" : manager.offers } }
     );
 
-    // console.log(result);
-
     response.render('confirmation.hbs', {
       title: 'Response',
       message: 'Your request was registered',
@@ -134,7 +128,6 @@ app.get('/books/buy/:id', authenticate, async (request, response) => {
   } catch (e) {
     request.session.returnTo = request.originalUrl;
     resuest.redirect('/signIn');
-    // res.status(401).send(e);
   }
 });
 
@@ -159,7 +152,6 @@ app.get('/books/add/:id', authenticate, async (request, response) => {
   } catch (e) {
     request.session.returnTo = request.originalUrl;
     response.redirect('/signIn');
-    // res.status(401).send(e);
   }
 });
 
@@ -226,8 +218,6 @@ app.get('/downloaded', authenticate, async (request, response) => {
       books.push(book);
     });
 
-    // console.log(books);
-
     response.render('downloaded-books.hbs', {
       title: 'Downloaded',
       isAuthorized: request.session.isAuthorized || false,
@@ -237,7 +227,6 @@ app.get('/downloaded', authenticate, async (request, response) => {
   } catch (e) {
     req.session.returnTo = request.originalUrl;
     res.redirect('/signIn');
-    // res.status(401).send(e);
   }
 });
 
@@ -248,7 +237,8 @@ app.get('/signIn', (request, response) => {
   response.render('sign-in.hbs', {
     title: 'Login',
     isLogin: true,
-    css: ['signin.css']
+    css: ['signin.css'],
+    js: ['layout.js']
   });
 });
 
@@ -278,14 +268,16 @@ app.post('/signIn',urlencodedParser, async (req, res) => {
       req.session.isAdmin = true;
       res.header('x-auth', token).redirect('/manager');
     }
-
-    // res.header('x-auth', token).send(user);
   } catch (e) {
-    res.status(400).send(e);
+    res.render('sign-in.hbs', {
+      title: 'Login',
+      isLogin: true,
+      errorMessage: 'Please, enter valid email and password.',
+      css: ['signin.css'],
+      js: ['layout.js']
+    });
   }
 });
-
-
 // end of login page region
 
 
@@ -295,29 +287,35 @@ app.get('/signUp', (request, response) => {
   response.render('sign-up.hbs', {
     title: 'Login',
     isLogin: true,
-    css: ['signup.css']
+    css: ['signup.css'],
+    js: ['layout.js']
   });
 });
 
 app.post('/signUp', urlencodedParser, async (req, res) => {
+  const body = _.pick(req.body, ['email', 'password', 'username', 'phonenumber', 'city', 'department']);
+  body.role = 'customer';
+  var redirectTo = req.session.returnTo || '/';
   try {
-    const body = _.pick(req.body, ['email', 'password', 'username', 'phonenumber', 'city', 'department']);
-    body.role = 'customer';
-    var redirectTo = req.session.returnTo || '/';
+
     const user = new User(body);
 
     await user.save();
     const token = user.generateAuthToken().then((result) => {
-      // console.log('result in then sign up', result);
       req.session.secureToken = result;
       req.session.isAuthorized = true;
       res.header('x-auth', result).redirect(redirectTo);
     });
-    // console.log('token in req',req.session.secureToken);
-    // console.log('token in token', token);
-    // res.header('x-auth', token).send(user);
+
   } catch(e) {
-    res.status(400).send(e);
+    res.render('sign-up.hbs', {
+      title: 'Login',
+      isLogin: true,
+      user: body,
+      errorMessage: 'Please, enter valid email and username',
+      css: ['signup.css'],
+      js: ['layout.js']
+    });
   }
 });
 
@@ -361,13 +359,16 @@ app.get('/admin/add', authenticate, (req, res) => {
     title: 'Adding manager',
     isAuthorized: req.session.isAuthorized,
     isAdmin: req.session.isAdmin,
-    css: ['admin-form.css']
+    css: ['admin-form.css'],
+    js: ['layout.js']
   });
 
 });
 
 // handling manager addition admin page
 app.post('/admin/add', urlencodedParser, authenticate, async (req, res) => {
+  const body = _.pick(req.body, ['email', 'password', 'username', 'phonenumber']);
+
   try {
     const body = _.pick(req.body, ['email', 'password', 'username', 'phonenumber']);
     body.city = 'default';
@@ -379,7 +380,15 @@ app.post('/admin/add', urlencodedParser, authenticate, async (req, res) => {
 
     res.status(200).redirect('/admin');
   } catch(e) {
-    res.status(400).send(e);
+    res.render('admin-add.hbs', {
+      title: 'Adding manager',
+      isAuthorized: req.session.isAuthorized,
+      isAdmin: req.session.isAdmin,
+      user: body,
+      errorMessage: 'Please, enter valid email and username',
+      css: ['admin-form.css'],
+      js: ['layout.js']
+    });
   }
 });
 
@@ -395,7 +404,8 @@ app.get('/admin/edit/:email', authenticate, async (req, res) => {
     isAuthorized: req.session.isAuthorized,
     isAdmin: req.session.isAdmin,
     manager: manager,
-    css: ['admin-form.css']
+    css: ['admin-form.css'],
+    js: ['layout.js']
   });
 
 });
@@ -406,7 +416,6 @@ app.post('/admin/edit', urlencodedParser, authenticate, async (req, res) => {
   const body = _.pick(req.body, ['username', 'phonenumber']);
 
   try {
-
     const result = await User.updateOne(
       { "email" : email },
       { $set : {
@@ -414,12 +423,20 @@ app.post('/admin/edit', urlencodedParser, authenticate, async (req, res) => {
         "phonenumber" : body.phonenumber } }
     );
 
-    // console.log(result);
-
     res.redirect('/admin');
   } catch (e) {
-    req.session.returnTo = req.originalUrl;
-    res.redirect('/signIn');
+    res.render('admin-edit.hbs', {
+      title: 'Editing manager',
+      isAuthorized: req.session.isAuthorized,
+      isAdmin: req.session.isAdmin,
+      errorMessage: 'Please, enter valid username',
+      user: body,
+      manager: manager,
+      css: ['admin-form.css'],
+      js: ['layout.js']
+    });
+    // req.session.returnTo = req.originalUrl;
+    // res.redirect('/signIn');
   }
 });
 
@@ -629,7 +646,6 @@ app.get('/profile', authenticate, async (req, res) => {
   } catch (e) {
     req.session.returnTo = req.originalUrl;
     res.redirect('/signIn');
-    // res.status(401).send(e);
   }
 });
 
@@ -637,21 +653,19 @@ app.get('/profile', authenticate, async (req, res) => {
 app.get('/profile/edit', authenticate, async (req, res) => {
   const token = req.session.secureToken;
 
-  // console.log('TOKEN IN PROFILE', token);
   try {
     const user = await User.findByToken(token);
-    // console.log(user);
 
     res.render('profile-edit.hbs', {
       title: 'Edit Profile',
       user: user,
       css: ['profile-edit.css'],
+      js: ['layout.js'],
       isAuthorized: req.session.isAuthorized || false
     });
   } catch (e) {
     req.session.returnTo = req.originalUrl;
     res.redirect('/signIn');
-    // res.status(401).send(e);
   }
 });
 
@@ -672,13 +686,18 @@ app.post('/profile/edit', urlencodedParser, authenticate, async (req, res) => {
         "department" : body.department } }
     );
 
-    console.log(result);
-
     res.redirect('/profile');
   } catch (e) {
-    req.session.returnTo = req.originalUrl;
-    res.redirect('/signIn');
-    // res.status(401).send(e);
+    res.render('profile-edit.hbs', {
+      title: 'Edit Profile',
+      user: body,
+      errorMessage: 'Please, enter valid username.',
+      css: ['profile-edit.css'],
+      js: ['layout.js'],
+      isAuthorized: req.session.isAuthorized || false
+    });
+    // req.session.returnTo = req.originalUrl;
+    // res.redirect('/signIn');
   }
 });
 // end of profile route region
